@@ -30,7 +30,10 @@ keywords =
     "then",
     "else",
     "true",
-    "false"
+    "false",
+    "print",
+    "put", 
+    "get"
   ]
 
 lVName :: Parser VName
@@ -52,6 +55,14 @@ lString s = lexeme $ void $ chunk s
 lKeyword :: String -> Parser ()
 lKeyword s = lexeme $ void $ try $ chunk s <* notFollowedBy (satisfy isAlphaNum)
 
+-- Parser matching " + zero or more non-" characters + ", wrapped in lexeme (Trailing whitespace is consumed)
+lStringLit :: Parser String
+lStringLit = lexeme $ do
+  _ <- chunk "\""
+  s <- many (satisfy (/= '"'))
+  _ <- chunk "\""
+  pure s
+
 pBool :: Parser Bool
 pBool =
   choice $
@@ -68,6 +79,7 @@ pAtom =
       lString "(" *> pExp <* lString ")"
     ]
 
+-- Changed to include print, put, get at the same precedence level as if
 pLExp :: Parser Exp
 pLExp =
   choice
@@ -75,6 +87,14 @@ pLExp =
         <$> (lKeyword "if" *> pExp)
         <*> (lKeyword "then" *> pExp)
         <*> (lKeyword "else" *> pExp),
+      Print
+      <$> (lKeyword "print" *> lStringLit)
+      <*> pAtom,
+      KvPut
+        <$> (lKeyword "put" *> pAtom)
+        <*> pAtom,
+      KvGet
+        <$> (lKeyword "get" *> pAtom),
       pAtom
     ]
 

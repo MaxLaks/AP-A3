@@ -64,5 +64,22 @@ tests =
         "Lexing edge cases"
         [ parserTest "2 " $ CstInt 2,
           parserTest " 2" $ CstInt 2
+        ],
+      testGroup
+        "Printing, putting, getting"
+        [ parserTest "put x y" $
+            KvPut (Var "x") (Var "y"),
+          parserTest "get x + y" $
+            Add (KvGet (Var "x")) (Var "y"),
+          parserTest "getx" $
+            Var "getx",
+          parserTest "print \"foo\" x" $
+            Print "foo" (Var "x"),
+          parserTest "print \"\" x" $
+            Print "" (Var "x"),
+          parserTestFail "print \"foo x",
+          parserTestFail "print \"foo\"",
+          parserTestFail "put x",
+          parserTestFail "get"
         ]
     ]
