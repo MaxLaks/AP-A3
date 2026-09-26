@@ -79,6 +79,15 @@ pAtom =
       lString "(" *> pExp <* lString ")"
     ]
 
+-- Task 1. Function application
+-- pFExp can take up to 3 inputs, and parse them.
+-- a b c is parsed as (a b) c.
+pFExp :: Parser Exp
+pFExp = do
+  x <- pAtom
+  xs <- many pAtom
+  pure $ foldl Apply x xs
+
 -- Changed to include print, put, get at the same precedence level as if
 pLExp :: Parser Exp
 pLExp =
@@ -95,7 +104,7 @@ pLExp =
         <*> pAtom,
       KvGet
         <$> (lKeyword "get" *> pAtom),
-      pAtom
+      pFExp
     ]
 
 pExp1 :: Parser Exp

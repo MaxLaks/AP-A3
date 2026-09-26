@@ -81,5 +81,19 @@ tests =
           parserTestFail "print \"foo\"",
           parserTestFail "put x",
           parserTestFail "get"
+        ],
+      testGroup
+        "Task 1: Function application"
+        [ parserTest "f x" $
+            Apply (Var "f") (Var "x"),
+          parserTest "f x y" $
+            Apply (Apply (Var "f") (Var "x")) (Var "y"),
+          parserTestFail "x if x then y else z",
+          parserTest "x (if x then y else z)" $
+            Apply (Var "x") (If (Var "x") (Var "y") (Var "z")),
+          parserTest "x(y z)" $
+            Apply (Var "x") (Apply (Var "y") (Var "z")),
+          parserTest "f x + y" $
+            Add (Apply (Var "f") (Var "x")) (Var "y")
         ]
     ]
