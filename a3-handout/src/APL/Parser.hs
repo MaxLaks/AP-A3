@@ -33,7 +33,14 @@ keywords =
     "false",
     "print",
     "put", 
-    "get"
+    "get",
+    "try",
+    "catch",
+    "let",
+    "in",
+    "loop",
+    "for",
+    "do"
   ]
 
 lVName :: Parser VName
@@ -99,6 +106,24 @@ pLExp =
       Print
       <$> (lKeyword "print" *> lStringLit)
       <*> pAtom,
+      Lambda
+      <$> (lString "\\" *> lVName)
+      <*> (lString "->" *> pExp),
+      TryCatch
+      <$> (lKeyword "try" *> pExp)
+      <*> (lKeyword "catch" *> pExp),
+      Let
+      <$> (lKeyword "let" *> lVName)
+      <*> (lString "=" *> pExp)
+      <*> (lKeyword "in" *> pExp),
+      ForLoop
+      <$> ((,)
+        <$> (lKeyword "loop" *> lVName)
+        <*> (lString "=" *> pExp))
+      <*> ((,)
+        <$> (lKeyword "for" *> lVName)
+        <*> (lString "<" *> pExp))
+      <*> (lKeyword "do" *> pExp),
       KvPut
         <$> (lKeyword "put" *> pAtom)
         <*> pAtom,
