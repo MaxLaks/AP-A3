@@ -107,18 +107,31 @@ pLExp =
       pFExp
     ]
 
+--- Task 2: 
+pExpPow :: Parser Exp
+pExpPow = pLExp >>= chain
+  where
+    chain x =
+      choice
+        [ do
+            lString "**"
+            y <- pLExp
+            chain $ Pow x y,
+          pure x
+        ]
+
 pExp1 :: Parser Exp
-pExp1 = pLExp >>= chain
+pExp1 = pExpPow >>= chain
   where
     chain x =
       choice
         [ do
             lString "*"
-            y <- pLExp
+            y <- pExpPow
             chain $ Mul x y,
           do
             lString "/"
-            y <- pLExp
+            y <- pExpPow
             chain $ Div x y,
           pure x
         ]
@@ -139,8 +152,20 @@ pExp0 = pExp1 >>= chain
           pure x
         ]
 
+pExpEq :: Parser Exp
+pExpEq = pExp0 >>= chain
+  where
+    chain x =
+      choice
+        [ do
+            lString "=="
+            y <- pExp0
+            chain $ Eql x y,
+          pure x
+        ]
+
 pExp :: Parser Exp
-pExp = pExp0
+pExp = pExpEq
 
 parseAPL :: FilePath -> String -> Either String Exp
 parseAPL fname s = case parse (space *> pExp <* eof) fname s of
