@@ -65,35 +65,73 @@ tests =
         [ parserTest "2 " $ CstInt 2,
           parserTest " 2" $ CstInt 2
         ],
+      -----------------------------------------
       testGroup
-        "Printing, putting, getting"
+        "Task 1: Function application"
+        [ parserTest "f x" $
+            Apply (Var "f") (Var "x"),
+          ---
+          parserTest "f x y" $
+            Apply (Apply (Var "f") (Var "x")) (Var "y"),
+          ---
+          parserTestFail "x if x then y else z",
+          ---
+          parserTest "x (if x then y else z)" $
+            Apply (Var "x") (If (Var "x") (Var "y") (Var "z")),
+          ---
+          parserTest "x(y z)" $
+            Apply (Var "x") (Apply (Var "y") (Var "z")),
+          ---
+          parserTest "f x + y" $
+            Add (Apply (Var "f") (Var "x")) (Var "y")
+        ],
+      testGroup
+        "Task 3:Printing, putting, getting"
         [ parserTest "put x y" $
             KvPut (Var "x") (Var "y"),
+          ---
           parserTest "get x + y" $
             Add (KvGet (Var "x")) (Var "y"),
+          ---
           parserTest "getx" $
             Var "getx",
+          ---
           parserTest "print \"foo\" x" $
             Print "foo" (Var "x"),
+          ---
           parserTest "print \"\" x" $
             Print "" (Var "x"),
+          ---
           parserTestFail "print \"foo x",
           parserTestFail "print \"foo\"",
           parserTestFail "put x",
           parserTestFail "get"
         ],
+
       testGroup
-        "Task 1: Function application"
-        [ parserTest "f x" $
-            Apply (Var "f") (Var "x"),
-          parserTest "f x y" $
-            Apply (Apply (Var "f") (Var "x")) (Var "y"),
-          parserTestFail "x if x then y else z",
-          parserTest "x (if x then y else z)" $
-            Apply (Var "x") (If (Var "x") (Var "y") (Var "z")),
-          parserTest "x(y z)" $
-            Apply (Var "x") (Apply (Var "y") (Var "z")),
-          parserTest "f x + y" $
-            Add (Apply (Var "f") (Var "x")) (Var "y")
+        "Task 2: Equality and power operators"
+        [
+          -- Equality
+          parserTest "x == y" $ Eql (Var "x") (Var "y"),
+          ---
+          parserTest "(x == y) == z" $ Eql (Eql (Var "x") (Var "y")) (Var "z"),
+          ---
+          parserTest "x == (y == z)" $ Eql (Var "x") (Eql (Var "y") (Var "z")),
+          ---
+          parserTest "x == y == z" $ Eql (Eql (Var "x") (Var "y")) (Var "z") ,
+          --------
+          -- Power
+          --------
+          parserTest "x ** y" $ Pow (Var "x") (Var "y"),
+          ---
+          parserTest "x * y ** z" $ Mul (Var "x") (Pow (Var "y") (Var "z")),
+          ---
+          parserTest "x ** y * z" $ Mul (Pow (Var "x") (Var "y")) (Var "z"),
+          ---
+          parserTest "(x ** y) ** z" $ Pow (Pow (Var "x") (Var "y")) (Var "z"), 
+          ---
+          parserTest "x ** (y ** z)" $ Pow (Var "x") (Pow (Var "y") (Var "z")),
+          ---
+          parserTest "x ** y ** z" $ Pow (Var "x") (Pow (Var "y") (Var "z"))
         ]
     ]
