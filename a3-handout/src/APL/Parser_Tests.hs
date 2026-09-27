@@ -114,18 +114,24 @@ tests =
           -- Equality
           parserTest "x == y" $ Eql (Var "x") (Var "y"),
           ---
-          parserTest "x == y == z" $ Eql (Eql (Var "x") (Var "y")) (Var "z") , -- Works
+          parserTest "(x == y) == z" $ Eql (Eql (Var "x") (Var "y")) (Var "z"),
           ---
-          parserTest "x == y == z" $ Eql (Var "z") (Eql (Var "x") (Var "y")),
+          parserTest "x == (y == z)" $ Eql (Var "x") (Eql (Var "y") (Var "z")),
+          ---
+          parserTest "x == y == z" $ Eql (Eql (Var "x") (Var "y")) (Var "z") ,
+          --------
           -- Power
+          --------
           parserTest "x ** y" $ Pow (Var "x") (Var "y"),
           ---
-          parserTest "x*y**z" $ Mul (Var "x") (Pow (Var "y") (Var "z")),
+          parserTest "x * y ** z" $ Mul (Var "x") (Pow (Var "y") (Var "z")),
           ---
-          parserTest "x**y*z" $ Mul (Pow (Var "x") (Var "y")) (Var "z"),
+          parserTest "x ** y * z" $ Mul (Pow (Var "x") (Var "y")) (Var "z"),
           ---
-          parserTest "x**y**z" $ Pow (Pow (Var "x") (Var "y")) (Var "z"), -- Works 
+          parserTest "(x ** y) ** z" $ Pow (Pow (Var "x") (Var "y")) (Var "z"), 
           ---
-          parserTest "x**y**z" $ Pow (Var "x") (Pow (Var "y") (Var "z")) 
+          parserTest "x ** (y ** z)" $ Pow (Var "x") (Pow (Var "y") (Var "z")),
+          ---
+          parserTest "x ** y ** z" $ Pow (Var "x") (Pow (Var "y") (Var "z"))
         ]
     ]

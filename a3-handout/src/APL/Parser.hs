@@ -115,7 +115,7 @@ pExpPow = pLExp >>= chain
       choice
         [ do
             lString "**"
-            y <- pLExp
+            y <- pExpPow
             chain $ Pow x y,
           pure x
         ]
