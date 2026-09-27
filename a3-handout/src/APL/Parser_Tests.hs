@@ -114,6 +114,8 @@ tests =
           -- Equality
           parserTest "x == y" $ Eql (Var "x") (Var "y"),
           ---
+          parserTest "x + y == y + x" $ Eql (Add (Var "x") (Var "y")) (Add (Var "y") (Var "x")),
+          ---
           parserTest "(x == y) == z" $ Eql (Eql (Var "x") (Var "y")) (Var "z"),
           ---
           parserTest "x == (y == z)" $ Eql (Var "x") (Eql (Var "y") (Var "z")),
